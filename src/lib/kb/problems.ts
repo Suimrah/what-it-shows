@@ -1,5 +1,6 @@
-// What #4471 actually holds: one problem per fix. causes.ts places a report by its tenant; a report
-// the desk read as a one-day move (desk-notes.json) is not a month/day flip at all, whatever its tenant.
+// What #4471 actually holds: one problem per fix. causes.ts places a report by its tenant, and the desk
+// counts it there. A report the desk read as a one-day move (desk-notes.json) is also its own problem:
+// counted where it is filed, and again under one-day.
 import { causeOf, uniqueById, type Report, type Tenant } from '#lib/kb/causes';
 
 export type Problem = 'parser' | 'hint' | 'one-day' | 'unplaced';
@@ -23,9 +24,9 @@ export const PROBLEMS: Record<Problem, { title: string; fix: string }> = {
   },
 };
 
-export function problemOf(r: Report, t: Tenant | undefined, oneDayMove: readonly string[]): Problem {
-  if (oneDayMove.includes(r.id)) return 'one-day';
-  return causeOf(r, t) ?? 'unplaced';
+export function problemsOf(r: Report, t: Tenant | undefined, oneDayMove: readonly string[]): Problem[] {
+  const filed = causeOf(r, t) ?? 'unplaced';
+  return oneDayMove.includes(r.id) ? [filed, 'one-day'] : [filed];
 }
 
 export type ProblemGroup = { problem: Problem; reports: Report[]; tenants: number; firstSeen: string; lastSeen: string };
@@ -38,8 +39,7 @@ export function groupByProblem(
 ): ProblemGroup[] {
   const byProblem = new Map<Problem, Report[]>();
   for (const r of uniqueById(reports).filter((r) => r.mergedInto === ticket)) {
-    const p = problemOf(r, tenantOf(r), oneDayMove);
-    byProblem.set(p, [...(byProblem.get(p) ?? []), r]);
+    for (const p of problemsOf(r, tenantOf(r), oneDayMove)) byProblem.set(p, [...(byProblem.get(p) ?? []), r]);
   }
   return [...byProblem.entries()]
     .map(([problem, rs]) => {

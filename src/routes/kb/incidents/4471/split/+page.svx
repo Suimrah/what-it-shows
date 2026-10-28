@@ -15,12 +15,13 @@ signature: Suimrah
 </script>
 
 [#4471](/kb/incidents/4471) says the desk merged every date report into one issue with one fix
-queued. It holds three problems, and each needs its own fix. Shipping the queued parser fix closes
-the biggest one and leaves the other two open, with their reporters still waiting under a ticket
-marked known.
+queued. It held three problems. Engineering closed #4471 on 5 October: the parser is fixed, and
+the booking-v3 form is retired, so its hint will not be fixed. Neither change touches the third
+problem. Those reporters still get a booking on the wrong day, under a ticket that now says closed.
 
 <Callout kind="warn">
-Not one issue. Three problems, each now its own ticket. Do not close #4471 when the parser fix ships.
+#4471 is closed. One of its problems is not fixed: bookings that move by one day. It is tracked in
+its own ticket.
 </Callout>
 
 ## What #4471 holds
@@ -31,6 +32,10 @@ Not one issue. Three problems, each now its own ticket. Do not close #4471 when 
     parser: 'https://github.com/Suimrah/what-it-shows/issues/1',
     hint: 'https://github.com/Suimrah/what-it-shows/issues/2',
     'one-day': 'https://github.com/Suimrah/what-it-shows/issues/3',
+  }}
+  state={{
+    parser: 'fixed: fix(dates): parse dd/mm for eu locales',
+    hint: "won't fix: booking-v3 form retired",
   }}
 />
 
@@ -50,9 +55,10 @@ Not one issue. Three problems, each now its own ticket. Do not close #4471 when 
 - **By tenant, not by intake tag.** Intake tags a report from the reporter's browser locale. The
   cause depends on the tenant's locale and booking form (`causeOf` in `causes.ts`). The two
   disagree in both directions, so the tag is not a count.
-- **One-day moves come out first**, whatever the tenant, because no swap explains them.
+- **One-day moves are their own problem**, because no swap explains them. The desk files them
+  under their tenant's cause and footnotes them; this page counts them there too, and again on their own.
 
-For comparison, the desk's own split by cause, with the one-day moves still counted inside:
+The desk's own split by cause:
 
 <CauseTable ticket={4471} />
 
