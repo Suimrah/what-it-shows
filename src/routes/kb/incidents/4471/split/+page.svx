@@ -1,0 +1,72 @@
+---
+layout: runbook
+title: '#4471, split · three problems, three fixes'
+owner: Suimrah
+status: open
+reviewed: 2026-10-28
+signature: Suimrah
+---
+
+<script>
+  import ProblemTable from '#lib/kb/ProblemTable.svelte';
+  import CauseTable from '#lib/kb/CauseTable.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+</script>
+
+[#4471](/kb/incidents/4471) says the desk merged every date report into one issue with one fix
+queued. It holds three problems, and each needs its own fix. Shipping the queued parser fix closes
+the biggest one and leaves the other two open, with their reporters still waiting under a ticket
+marked known.
+
+<Callout kind="warn">
+Not one issue. Three problems, each now its own ticket. Do not close #4471 when the parser fix ships.
+</Callout>
+
+## What #4471 holds
+
+<ProblemTable
+  ticket={4471}
+  issues={{
+    parser: 'https://github.com/Suimrah/what-it-shows/issues/1',
+    hint: 'https://github.com/Suimrah/what-it-shows/issues/2',
+    'one-day': 'https://github.com/Suimrah/what-it-shows/issues/3',
+  }}
+/>
+
+- **`parser`**: the shared parser reads every date month first, and every tenant on file writes the
+  day first. The date comes out with day and month swapped.
+- **`hint`**: booking-v3's form prints `MM/DD/YYYY` under its date field. People type what it says,
+  and the form then reads the date day first. Fixing the parser does not touch this.
+- **`one-day`**: the date moves by one day, as with a client in Lisbon getting Tuesday and a client in Toronto
+  getting Monday. A month/day swap cannot do that. The desk had already read these reports this
+  way (`desk-notes.json`) but filed them under the parser bug by tenant. Probably a booking sent
+  without its time zone; an engineer has to confirm.
+
+## How the reports were placed
+
+- **One report, one count.** The export pages overlap, so some reports appear twice. Counted once
+  by id (`uniqueById`).
+- **By tenant, not by intake tag.** Intake tags a report from the reporter's browser locale. The
+  cause depends on the tenant's locale and booking form (`causeOf` in `causes.ts`). The two
+  disagree in both directions, so the tag is not a count.
+- **One-day moves come out first**, whatever the tenant, because no swap explains them.
+
+For comparison, the desk's own split by cause, with the one-day moves still counted inside:
+
+<CauseTable ticket={4471} />
+
+## Why one ticket hid three
+
+Triage merges on subject line alone ([decision 0001](/kb/decisions/0001-dedupe-by-subject)).
+Every one of these reporters wrote some version of "wrong day", so every report landed in one ticket.
+The decision accepted that cost for reports with *different* subjects about one bug. It did not
+cover the reverse: *one* subject about different bugs. That is this ticket.
+
+## Lessons
+
+- A big ticket can be many bugs with one symptom. Count by cause before you mark it known.
+- Group reports by the tenant's locale and form, not by subject or intake tag.
+- Decision 0001 and the triage page have not been re-read since 2024. Their rule produced this ticket.
+
+<RenderStamp {signature} />
