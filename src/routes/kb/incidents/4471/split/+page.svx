@@ -4,7 +4,7 @@ title: '#4471, split · three problems, three fixes'
 owner: Suimrah
 status: open
 reviewed: 2026-10-28
-signature: Suimrah
+signature: v1.eyJzdWIiOiI5MTYiLCJhdWQiOiJjaGFsbGVuZ2U6d2hhdC1pdC1zaG93cyIsImlhdCI6MTc5MzIwNzEwNCwiZXhwIjoxNzkzMjkzNTA0fQ.o_wLWOuLFXJroS8zjSwTQun-1jk0ua5XEAmBHn_kLqI
 ---
 
 <script>
